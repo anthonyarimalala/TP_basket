@@ -1,6 +1,6 @@
 async function fetchData() {
     try {
-      const response = await fetch('https://nba-ws.onreader.com/statistics');
+      const response = await fetch('https://nba-ws.onrender.com/statistics');
       const data = await response.json();
       return data;
     } catch (error) {
