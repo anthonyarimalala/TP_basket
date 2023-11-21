@@ -1,56 +1,50 @@
-var playersData = [
-    {
-      "joueur": "LeBron James",
-      "equipe": "Los Angeles Lakers",
-      "m": 20,
-      "mj": 30,
-      "ppm": 25,
-      "rpm": 10,
-      "pdpm": 5,
-      "mpm": 28,
-      "eff": 30,
-      "fg": "55%",
-      "3p": "40%",
-      "lf": "85%"
-    },
-    {
-      "joueur": "Stephen Curry",
-      "equipe": "Golden State Warriors",
-      "m": 18,
-      "mj": 32,
-      "ppm": 22,
-      "rpm": 12,
-      "pdpm": 6,
-      "mpm": 25,
-      "eff": 28,
-      "fg": "50%",
-      "3p": "38%",
-      "lf": "90%"
+async function fetchDataFromWebService(url) {
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
-  ];
 
-
-  function generateTableRows() {
-    var tableBody = document.getElementById('tableBody');
-
-    playersData.forEach(function(player) {
-      var row = '<tr>';
-      row += '<td>' + player.joueur + '</td>';
-      row += '<td>' + player.equipe + '</td>';
-      row += '<td>' + player.m + '</td>';
-      row += '<td>' + player.mj + '</td>';
-      row += '<td>' + player.ppm + '</td>';
-      row += '<td>' + player.rpm + '</td>';
-      row += '<td>' + player.pdpm + '</td>';
-      row += '<td>' + player.mpm + '</td>';
-      row += '<td>' + player.eff + '</td>';
-      row += '<td>' + player.fg + '</td>';
-      row += '<td>' + player["3p"] + '</td>';
-      row += '<td>' + player.lf + '</td>';
-      row += '</tr>';
-      tableBody.innerHTML += row;
-    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error.message);
+    return null;
   }
+}
 
+const apiUrl = 'https://nba-ws.onrender.com/statistics'; // Remplacez par votre URL API
+const tableBody = document.getElementById('tableBody');
 
-  generateTableRows();
+fetchDataFromWebService(apiUrl)
+  .then(data => {
+    if (data && data.length > 0) {
+      // Boucle à travers les données et les ajoute au tableau HTML
+      data.forEach(player => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${player.joueur}</td>
+          <td>${player.equipe}</td>
+          <td>${player.mj}</td>
+          <td>${player.ppm}</td>
+          <td>${player.rpm}</td>
+          <td>${player.pdpm}</td>
+          <td>${player.fg.toFixed(1)}%</td>
+          <td>${player.three_p.toFixed(1)}%</td>
+          <td>${player.lf.toFixed(1)}%</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    } else {
+      const row = document.createElement('tr');
+      row.innerHTML = '<td colspan="12">Erreur lors de la récupération des données.</td>';
+      tableBody.appendChild(row);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    const row = document.createElement('tr');
+    row.innerHTML = '<td colspan="12">Erreur lors de la récupération des données.</td>';
+    tableBody.appendChild(row);
+  });
